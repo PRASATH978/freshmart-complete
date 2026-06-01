@@ -1,0 +1,21 @@
+# Backend (Django/Laravel)
+backend/.env
+backend/__pycache__/
+backend/*.pyc
+backend/venv/
+backend/vendor/
+backend/node_modules/
+
+# Frontend
+frontend/node_modules/
+frontend/.env
+frontend/.env.local
+
+# Mobile (Expo/React Native)
+mobile/node_modules/
+mobile/.expo/
+mobile/.env
+
+# General
+.DS_Store
+Thumbs.db

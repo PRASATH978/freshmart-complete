@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "FreshMart",
+    "slug": "freshmart-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1B4332"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.freshmart.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1B4332"
+      },
+      "package": "com.freshmart.app",
+      "versionCode": 1,
+      "usesCleartextTraffic": true
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-asset",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "10afc1bf-8b16-46ad-aae1-095c35d228b2"
+      }
+    },
+    "owner": "prasath978"
+  }
+}
