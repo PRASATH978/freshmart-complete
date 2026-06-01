@@ -7,9 +7,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Then start Django with: python manage.py runserver 0.0.0.0:8000
 const API_URL = "https://freshmart-complete-2.onrender.com";
 
-const { data } = await axios.post(
-  `${API_URL}/auth/refresh/`,  // ✅ correct);
-);
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
+  timeout: 15000,
+});
+
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
