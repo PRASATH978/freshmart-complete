@@ -30,11 +30,11 @@
       "expo-asset",
       "expo-font"
     ],
+    "owner": "prasath978",
     "extra": {
       "eas": {
-        "projectId": "10afc1bf-8b16-46ad-aae1-095c35d228b2"
+        "projectId": "d7b3e1e9-9a2a-4e4a-8cec-10dbf493f9b8"
       }
-    },
-    "owner": "prasath978"
+    }
   }
 }

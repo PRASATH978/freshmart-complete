@@ -5,10 +5,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Windows: run ipconfig → look for IPv4 Address under WiFi
 // Mac/Linux: run ifconfig
 // Then start Django with: python manage.py runserver 0.0.0.0:8000
-const API_BASE = 'http://10.79.211.223:8000/api';
+const API_URL = "https://freshmart-complete-2.onrender.com";
 
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
   timeout: 15000,
 });
