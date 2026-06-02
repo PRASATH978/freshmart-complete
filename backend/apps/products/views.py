@@ -99,19 +99,3 @@ class AdminProductStatsView(APIView):
         })
 
 
-from django.http import JsonResponse
-
-def clear_images(request):
-    Product.objects.all().update(image='')
-    Offer.objects.all().update(banner_image='')
-    return JsonResponse({'status': 'done', 'products': Product.objects.count()})
-
-
-def debug_storage(request):
-    from django.core.files.storage import default_storage
-    from django.conf import settings
-    return JsonResponse({
-        'storage': str(default_storage.__class__),
-        'DEFAULT_FILE_STORAGE': getattr(settings, 'DEFAULT_FILE_STORAGE', 'NOT SET'),
-        'CLOUDINARY_STORAGE': getattr(settings, 'CLOUDINARY_STORAGE', 'NOT SET'),
-    })
