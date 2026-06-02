@@ -4,6 +4,7 @@ import {
   TextInput, ActivityIndicator, Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import RazorpayCheckout from 'react-native-razorpay';
 import { orderAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
@@ -31,16 +32,67 @@ export default function CheckoutScreen({ navigation, route }) {
       Alert.alert('Missing Info', 'Please fill all delivery address fields');
       return;
     }
+
     setLoading(true);
+
     try {
-      await orderAPI.createOrder({
+      // Step 1: Create the order
+      const { data: order } = await orderAPI.createOrder({
         ...form,
         discount_amount: discount,
         coupon_applied,
       });
-      await fetchCart();
-      Toast.show({ type: 'success', text1: 'Order placed successfully! 🎉' });
-      navigation.navigate('CustomerTabs');
+
+      // Step 2: If online/upi payment, open Razorpay
+      if (form.payment_method === 'online' || form.payment_method === 'upi') {
+        const { data: paymentData } = await orderAPI.createRazorpayOrder({
+          order_id: order.id,
+        });
+
+        const options = {
+          description: 'FreshMart Order Payment',
+          currency: 'INR',
+          key: paymentData.razorpay_key_id,
+          amount: paymentData.amount,
+          order_id: paymentData.razorpay_order_id,
+          name: 'FreshMart',
+          prefill: {
+            email: user?.email || '',
+            contact: user?.phone || '',
+            name: user?.username || '',
+          },
+          theme: { color: '#2D6A4F' },
+        };
+
+        RazorpayCheckout.open(options)
+          .then(async (paymentResponse) => {
+            // Payment successful - verify it
+            await orderAPI.verifyPayment({
+              razorpay_order_id: paymentResponse.razorpay_order_id,
+              razorpay_payment_id: paymentResponse.razorpay_payment_id,
+              razorpay_signature: paymentResponse.razorpay_signature,
+            });
+
+            await fetchCart();
+            Toast.show({ type: 'success', text1: 'Payment successful! Order placed 🎉' });
+            navigation.navigate('CustomerTabs');
+          })
+          .catch(async (error) => {
+            // Payment failed or cancelled
+            await orderAPI.paymentFailed({
+              razorpay_order_id: paymentData.razorpay_order_id,
+              error_description: error.description || 'Payment cancelled',
+            });
+            Alert.alert('Payment Failed', error.description || 'Payment was cancelled');
+          });
+
+      } else {
+        // COD - just place order directly
+        await fetchCart();
+        Toast.show({ type: 'success', text1: 'Order placed successfully! 🎉' });
+        navigation.navigate('CustomerTabs');
+      }
+
     } catch (err) {
       Alert.alert('Order Failed', err.response?.data?.error || 'Something went wrong. Try again.');
     } finally {
@@ -65,7 +117,6 @@ export default function CheckoutScreen({ navigation, route }) {
       </View>
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Address */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📍 Delivery Address</Text>
           <Text style={styles.label}>Street Address *</Text>
@@ -82,7 +133,6 @@ export default function CheckoutScreen({ navigation, route }) {
           </View>
         </View>
 
-        {/* Payment */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>💳 Payment Method</Text>
           {PAYMENT_OPTIONS.map(opt => (
@@ -101,7 +151,6 @@ export default function CheckoutScreen({ navigation, route }) {
           ))}
         </View>
 
-        {/* Notes */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>📝 Special Instructions</Text>
           <TextInput
@@ -114,7 +163,6 @@ export default function CheckoutScreen({ navigation, route }) {
           />
         </View>
 
-        {/* Summary */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>🧾 Order Summary</Text>
           {cart.items?.map(item => (
@@ -136,7 +184,6 @@ export default function CheckoutScreen({ navigation, route }) {
         <View style={{ height: 16 }} />
       </ScrollView>
 
-      {/* Place Order */}
       <View style={styles.bottomBar}>
         <TouchableOpacity
           style={[styles.orderBtn, loading && styles.orderBtnDis]}
