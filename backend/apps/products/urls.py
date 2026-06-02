@@ -1,6 +1,5 @@
 from django.urls import path
 from . import views
-from apps.products.views import clear_images, debug_storage
 
 
 urlpatterns = [
