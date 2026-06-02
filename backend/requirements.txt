@@ -1,4 +1,4 @@
-Django>==4.2.30
+Django>=4.2.30
 djangorestframework>=3.14
 django-cors-headers>=4.0
 Pillow>=10.0
@@ -7,3 +7,6 @@ razorpay>=1.4.1
 python-decouple>=3.8
 gunicorn
 whitenoise
+
+dj-database-url>=2.1.0
+psycopg2-binary>=2.9.9
