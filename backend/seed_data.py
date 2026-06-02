@@ -3,7 +3,12 @@ Run this to create demo data:
   python manage.py shell < seed_data.py
 """
 import os
+import django
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'veggieshop.settings')
+django.setup()
+
+
 
 from django.contrib.auth import get_user_model
 from apps.products.models import Category, Product, Offer
