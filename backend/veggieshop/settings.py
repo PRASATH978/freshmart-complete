@@ -14,7 +14,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',          # ← MOVE THIS UP (before staticfiles)
     'django.contrib.staticfiles',
+    'cloudinary',                  # ← cloudinary after staticfiles
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
@@ -22,8 +24,6 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.orders',
     'apps.delivery',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -106,7 +106,7 @@ RAZORPAY_KEY_SECRET = 'yYBRszgWhlO5F4C201O4AadH'
 
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'Root',
+    'CLOUD_NAME': 'dysbinxyv',
     'API_KEY': '213521331511844',
     'API_SECRET': 'np_doLEwZYVQEnTTZfoAoEnR2o4',
 }
