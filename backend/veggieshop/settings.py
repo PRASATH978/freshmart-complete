@@ -22,6 +22,8 @@ INSTALLED_APPS = [
     'apps.products',
     'apps.orders',
     'apps.delivery',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -90,8 +92,7 @@ CORS_ALLOW_CREDENTIALS = True
 # Add this - Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LANGUAGE_CODE = 'en-us'
@@ -102,3 +103,12 @@ USE_TZ = True
 # Razorpay — replace with your actual keys from razorpay.com
 RAZORPAY_KEY_ID = 'rzp_test_SvZG67pX4kckN4'
 RAZORPAY_KEY_SECRET = 'yYBRszgWhlO5F4C201O4AadH'
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'Root',
+    'API_KEY': '213521331511844',
+    'API_SECRET': 'np_doLEwZYVQEnTTZfoAoEnR2o4',
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
