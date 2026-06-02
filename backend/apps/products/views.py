@@ -97,3 +97,11 @@ class AdminProductStatsView(APIView):
                 Product.objects.filter(stock__lt=10, is_active=True).values('id', 'name', 'stock')
             ),
         })
+
+
+from django.http import JsonResponse
+
+def clear_images(request):
+    Product.objects.all().update(image='')
+    Offer.objects.all().update(banner_image='')
+    return JsonResponse({'status': 'done', 'products': Product.objects.count()})
