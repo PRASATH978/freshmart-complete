@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from apps.products.views import clear_images, debug_storage
+
 
 urlpatterns = [
     path('categories/', views.CategoryListCreateView.as_view()),
@@ -10,4 +12,5 @@ urlpatterns = [
     path('offers/', views.OfferListCreateView.as_view()),
     path('offers/<int:pk>/', views.OfferDetailView.as_view()),
     path('admin/stats/', views.AdminProductStatsView.as_view()),
+    path('debug-storage/', debug_storage),  # ← add this.
 ]
