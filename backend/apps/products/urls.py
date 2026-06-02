@@ -11,5 +11,5 @@ urlpatterns = [
     path('offers/', views.OfferListCreateView.as_view()),
     path('offers/<int:pk>/', views.OfferDetailView.as_view()),
     path('admin/stats/', views.AdminProductStatsView.as_view()),
-    path('debug-storage/', debug_storage),  # ← add this.
+     # ← add this.
 ]
