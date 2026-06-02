@@ -1,10 +1,6 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// ⚠️  IMPORTANT: Replace with your PC's WiFi IP address
-// Windows: run ipconfig → look for IPv4 Address under WiFi
-// Mac/Linux: run ifconfig
-// Then start Django with: python manage.py runserver 0.0.0.0:8000
 const API_URL = "https://freshmart-complete-2.onrender.com";
 
 const api = axios.create({
@@ -13,6 +9,16 @@ const api = axios.create({
   timeout: 15000,
 });
 
+// Add token to every request
+api.interceptors.request.use(async (config) => {
+  const token = await AsyncStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Handle token refresh on 401
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -26,7 +32,7 @@ api.interceptors.response.use(
       if (refresh) {
         try {
           const { data } = await axios.post(
-            `${API_BASE}/auth/refresh/`,
+            `${API_URL}/auth/refresh/`,
             { refresh }
           );
 
