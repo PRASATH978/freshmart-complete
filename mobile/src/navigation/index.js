@@ -2,9 +2,10 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, View, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
@@ -33,33 +34,78 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function CustomerTabs() {
+  const { cart } = useCart();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#2D6A4F',
+        tabBarActiveTintColor: '#1B4332',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#F3F4F6',
-          paddingBottom: 6,
-          paddingTop: 4,
-          height: 62,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
-        tabBarIcon: ({ color, size, focused }) => {
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600',
+          marginTop: 2,
+        },
+        tabBarBadge:
+          route.name === 'Cart' && cart?.item_count > 0
+            ? cart.item_count
+            : undefined,
+        tabBarBadgeStyle: {
+          backgroundColor: '#EF4444',
+          fontSize: 9,
+          fontWeight: '800',
+          minWidth: 16,
+          height: 16,
+          borderRadius: 8,
+        },
+        tabBarIcon: ({ color, focused, size }) => {
           const icons = {
             Home: focused ? 'home' : 'home-outline',
-            Shop: focused ? 'leaf' : 'leaf-outline',
-            Offers: focused ? 'pricetag' : 'pricetag-outline',
-            Orders: focused ? 'cube' : 'cube-outline',
-            Profile: focused ? 'person' : 'person-outline',
+            Shop: focused ? 'storefront' : 'storefront-outline',
+            Cart: focused ? 'bag' : 'bag-outline',
+            Offers: focused ? 'gift' : 'gift-outline',
+            Orders: focused ? 'receipt' : 'receipt-outline',
+            Profile: focused ? 'person-circle' : 'person-circle-outline',
           };
-          return <Ionicons name={icons[route.name]} size={22} color={color} />;
+
+          return (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: focused ? '#D1FAE5' : 'transparent',
+              }}
+            >
+              <Ionicons
+                name={icons[route.name]}
+                size={22}
+                color={focused ? '#1B4332' : '#9CA3AF'}
+              />
+            </View>
+          );
         },
-      })}>
+      })}
+    >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Shop" component={ShopScreen} />
+      <Tab.Screen name="Cart" component={CartScreen} />
       <Tab.Screen name="Offers" component={OffersScreen} />
       <Tab.Screen name="Orders" component={OrdersScreen} />
       <Tab.Screen name="Profile" component={ProfileScreen} />
@@ -72,27 +118,56 @@ function AdminTabs() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#7C3AED',
+        tabBarActiveTintColor: '#5B21B6',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#F3F4F6',
-          paddingBottom: 6,
-          paddingTop: 4,
-          height: 62,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
         },
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600' },
-        tabBarIcon: ({ color, focused }) => {
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600',
+          marginTop: 2,
+        },
+        tabBarIcon: ({ focused }) => {
           const icons = {
-            Dashboard: focused ? 'stats-chart' : 'stats-chart-outline',
-            Products: focused ? 'nutrition' : 'nutrition-outline',
+            Dashboard: focused ? 'grid' : 'grid-outline',
+            Products: focused ? 'basket' : 'basket-outline',
             Orders: focused ? 'receipt' : 'receipt-outline',
             Payments: focused ? 'card' : 'card-outline',
             Users: focused ? 'people' : 'people-outline',
           };
-          return <Ionicons name={icons[route.name]} size={22} color={color} />;
+
+          return (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: focused ? '#EDE9FE' : 'transparent',
+              }}
+            >
+              <Ionicons
+                name={icons[route.name]}
+                size={22}
+                color={focused ? '#5B21B6' : '#9CA3AF'}
+              />
+            </View>
+          );
         },
-      })}>
+      })}
+    >
       <Tab.Screen name="Dashboard" component={AdminDashboardScreen} />
       <Tab.Screen name="Products" component={AdminProductsScreen} />
       <Tab.Screen name="Orders" component={AdminOrdersScreen} />
@@ -110,22 +185,51 @@ function DeliveryTabs() {
         tabBarActiveTintColor: '#EA580C',
         tabBarInactiveTintColor: '#9CA3AF',
         tabBarStyle: {
-          backgroundColor: '#fff',
-          borderTopColor: '#F3F4F6',
-          paddingBottom: 6,
-          paddingTop: 4,
-          height: 62,
+          backgroundColor: '#FFFFFF',
+          borderTopWidth: 1,
+          borderTopColor: '#E5E7EB',
+          height: Platform.OS === 'ios' ? 85 : 65,
+          paddingTop: 8,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          elevation: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.08,
+          shadowRadius: 12,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
-        tabBarIcon: ({ color, focused }) => {
+        tabBarLabelStyle: {
+          fontSize: 10,
+          fontWeight: '600',
+          marginTop: 2,
+        },
+        tabBarIcon: ({ focused }) => {
           const icons = {
             Dashboard: focused ? 'speedometer' : 'speedometer-outline',
             Active: focused ? 'bicycle' : 'bicycle-outline',
             History: focused ? 'time' : 'time-outline',
           };
-          return <Ionicons name={icons[route.name]} size={22} color={color} />;
+
+          return (
+            <View
+              style={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 44,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: focused ? '#FFEDD5' : 'transparent',
+              }}
+            >
+              <Ionicons
+                name={icons[route.name]}
+                size={22}
+                color={focused ? '#EA580C' : '#9CA3AF'}
+              />
+            </View>
+          );
         },
-      })}>
+      })}
+    >
       <Tab.Screen name="Dashboard" component={DeliveryDashboardScreen} />
       <Tab.Screen name="Active" component={ActiveDeliveriesScreen} />
       <Tab.Screen name="History" component={DeliveryHistoryScreen} />
@@ -138,8 +242,8 @@ export default function AppNavigator() {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8FAF8' }}>
-        <ActivityIndicator size="large" color="#2D6A4F" />
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F0FDF4' }}>
+        <ActivityIndicator size="large" color="#1B4332" />
       </View>
     );
   }
@@ -163,7 +267,6 @@ export default function AppNavigator() {
           <>
             <Stack.Screen name="CustomerTabs" component={CustomerTabs} />
             <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
-            <Stack.Screen name="Cart" component={CartScreen} />
             <Stack.Screen name="Checkout" component={CheckoutScreen} />
           </>
         )}

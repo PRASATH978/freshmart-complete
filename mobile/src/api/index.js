@@ -56,6 +56,8 @@ export const authAPI = {
   getProfile: () => api.get('/auth/profile/'),
   updateProfile: (data) => api.patch('/auth/profile/', data),
   getUsers: (role) => api.get(`/auth/users/${role ? `?role=${role}` : ''}`),
+  // Inside authAPI:
+  savePushToken: (token) => api.post('/auth/push-token/', { token }),
 };
 
 export const productAPI = {
