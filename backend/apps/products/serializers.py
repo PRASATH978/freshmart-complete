@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Category, Product, Offer, Review
-
+from .models import Category, Product, Offer, Review, Wishlist
 
 class CategorySerializer(serializers.ModelSerializer):
     product_count = serializers.SerializerMethodField()
