@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { productAPI } from '../../api';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext'; // ← ADD THIS
 import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
@@ -32,6 +33,8 @@ const CAT_COLORS = {
 /* ── Product Card ── */
 const ProductCard = ({ item, navigation, handleAdd }) => {
   const scale = useRef(new Animated.Value(1)).current;
+  const { wishlist, toggleWishlist } = useWishlist(); // ← NOW WORKS
+  const isWishlisted = wishlist.includes(item.id);
 
   const onPressIn = () =>
     Animated.spring(scale, { toValue: 0.97, useNativeDriver: true }).start();
@@ -41,7 +44,7 @@ const ProductCard = ({ item, navigation, handleAdd }) => {
   const cardWidth = (width - 48) / 2;
 
   return (
-    <Animated.View style={[{ transform: [{ scale }], width: cardWidth, marginBottom: 14 }]}>
+    <Animated.View style={{ transform: [{ scale }], width: cardWidth, marginBottom: 14 }}>
       <TouchableOpacity
         style={styles.productCard}
         activeOpacity={0.95}
@@ -60,6 +63,20 @@ const ProductCard = ({ item, navigation, handleAdd }) => {
           ) : (
             <Text style={{ fontSize: 40 }}>🥦</Text>
           )}
+
+          {/* HEART BUTTON */}
+          <TouchableOpacity
+            style={styles.heartBtn}
+            onPress={() => toggleWishlist(item.id)}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={isWishlisted ? 'heart' : 'heart-outline'}
+              size={16}
+              color={isWishlisted ? '#EF4444' : '#9CA3AF'}
+            />
+          </TouchableOpacity>
+
           {item.active_offer && (
             <View style={styles.discountBadge}>
               <Text style={styles.discountText}>
@@ -117,7 +134,6 @@ export default function HomeScreen({ navigation }) {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [activeOffer, setActiveOffer] = useState(0);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(30)).current;
@@ -254,7 +270,9 @@ export default function HomeScreen({ navigation }) {
                       <Text style={styles.offerTitle} numberOfLines={2}>
                         {offer.title}
                       </Text>
-                      <Text style={styles.offerSub}>{offer.description || 'Limited time deal'}</Text>
+                      <Text style={styles.offerSub}>
+                        {offer.description || 'Limited time deal'}
+                      </Text>
                       {offer.coupon_code ? (
                         <View style={styles.couponWrap}>
                           <Text style={styles.couponText}>{offer.coupon_code}</Text>
@@ -281,7 +299,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.seeAll}>See all</Text>
               </TouchableOpacity>
             </View>
-
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {categories.map((cat) => {
                 const color = CAT_COLORS[cat.name] || { bg: '#F3F4F6', text: '#374151' };
@@ -316,7 +333,6 @@ export default function HomeScreen({ navigation }) {
                 <Text style={styles.seeAll}>See all</Text>
               </TouchableOpacity>
             </View>
-
             <View style={styles.productsGrid}>
               {featured.slice(0, 6).map((item) => (
                 <ProductCard
@@ -337,112 +353,66 @@ export default function HomeScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F9FAFB' },
-
   loader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F9FAFB',
   },
 
   /* HEADER */
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#fff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 16, paddingVertical: 12,
+    backgroundColor: '#fff', borderBottomWidth: 1, borderBottomColor: '#F3F4F6',
   },
   greeting: { fontSize: 18, fontWeight: '800', color: '#111827' },
   subtitle: { fontSize: 12, color: '#6B7280', marginTop: 2 },
   cartBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 12,
-    backgroundColor: '#F0FDF4',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 42, height: 42, borderRadius: 12,
+    backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center',
     position: 'relative',
   },
   badge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: '#EF4444',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 4,
-    borderWidth: 2,
-    borderColor: '#fff',
+    position: 'absolute', top: -4, right: -4,
+    backgroundColor: '#EF4444', borderRadius: 10,
+    minWidth: 18, height: 18,
+    justifyContent: 'center', alignItems: 'center',
+    paddingHorizontal: 4, borderWidth: 2, borderColor: '#fff',
   },
   badgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
 
   /* SEARCH */
   searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 16,
-    marginTop: 14,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: '#fff', marginHorizontal: 16, marginTop: 14,
+    borderRadius: 14, paddingHorizontal: 14, paddingVertical: 12,
+    borderWidth: 1, borderColor: '#E5E7EB',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 4, elevation: 2,
   },
   searchPlaceholder: { fontSize: 13, color: '#9CA3AF', marginLeft: 8, flex: 1 },
   searchFilter: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
-    backgroundColor: '#F0FDF4',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: 30, height: 30, borderRadius: 8,
+    backgroundColor: '#F0FDF4', justifyContent: 'center', alignItems: 'center',
   },
 
   /* OFFER BANNER */
   offerBanner: {
-    width: width - 48,
-    borderRadius: 20,
-    padding: 20,
-    marginRight: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 120,
+    width: width - 48, borderRadius: 20, padding: 20, marginRight: 12,
+    flexDirection: 'row', alignItems: 'center', minHeight: 120,
   },
   offerLeft: { flex: 1 },
   offerTagWrap: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    alignSelf: 'flex-start',
-    marginBottom: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20,
+    paddingHorizontal: 10, paddingVertical: 3,
+    alignSelf: 'flex-start', marginBottom: 8,
   },
   offerTagText: { color: '#fff', fontSize: 10, fontWeight: '700' },
   offerTitle: { color: '#fff', fontSize: 16, fontWeight: '800', lineHeight: 22 },
   offerSub: { color: 'rgba(255,255,255,0.75)', fontSize: 11, marginTop: 4 },
   couponWrap: {
-    marginTop: 10,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    alignSelf: 'flex-start',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.4)',
-    borderStyle: 'dashed',
+    marginTop: 10, backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4,
+    alignSelf: 'flex-start', borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)', borderStyle: 'dashed',
   },
   couponText: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 1 },
   offerRight: { alignItems: 'center', marginLeft: 12 },
@@ -452,21 +422,16 @@ const styles = StyleSheet.create({
   /* SECTION */
   section: { paddingHorizontal: 16, paddingTop: 20 },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 14,
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', marginBottom: 14,
   },
   sectionTitle: { fontSize: 17, fontWeight: '800', color: '#111827' },
   seeAll: { fontSize: 13, fontWeight: '600', color: '#2D6A4F' },
 
   /* CATEGORY */
   catCard: {
-    borderRadius: 16,
-    padding: 14,
-    marginRight: 10,
-    alignItems: 'center',
-    width: 88,
+    borderRadius: 16, padding: 14, marginRight: 10,
+    alignItems: 'center', width: 88,
   },
   catEmoji: { fontSize: 30, marginBottom: 6 },
   catName: { fontSize: 11, fontWeight: '700', textAlign: 'center' },
@@ -474,75 +439,54 @@ const styles = StyleSheet.create({
 
   /* PRODUCTS GRID */
   productsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between',
   },
 
   /* PRODUCT CARD */
   productCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#F3F4F6',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: '#fff', borderRadius: 16, overflow: 'hidden',
+    borderWidth: 1, borderColor: '#F3F4F6',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
   },
   productImgWrap: {
-    backgroundColor: '#F0FDF4',
-    height: 120,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#F0FDF4', height: 120,
+    justifyContent: 'center', alignItems: 'center',
   },
-  productImg: {
-    width: '100%',
-    height: '100%',
+  productImg: { width: '100%', height: '100%' },
+
+  /* HEART BUTTON */
+  heartBtn: {
+    position: 'absolute', top: 8, right: 8,
+    backgroundColor: '#fff', borderRadius: 20, padding: 5,
+    elevation: 2, shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1, shadowRadius: 4,
   },
+
   discountBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    backgroundColor: '#EF4444',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
+    position: 'absolute', top: 8, left: 8,
+    backgroundColor: '#EF4444', borderRadius: 6,
+    paddingHorizontal: 6, paddingVertical: 3,
   },
   discountText: { color: '#fff', fontSize: 9, fontWeight: '800' },
   productInfo: { padding: 10 },
   productName: { fontSize: 13, fontWeight: '700', color: '#111827' },
   catLabel: { fontSize: 10, color: '#9CA3AF', marginTop: 2 },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
+  ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   ratingText: { fontSize: 10, color: '#F59E0B', fontWeight: '600' },
   reviewCount: { fontSize: 10, color: '#9CA3AF' },
-  priceRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
-    marginTop: 6,
-  },
+  priceRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 6 },
   price: { fontSize: 15, fontWeight: '800', color: '#1B4332' },
   unit: { fontSize: 10, color: '#9CA3AF', marginLeft: 1 },
   origPrice: {
-    fontSize: 10,
-    color: '#D1D5DB',
-    textDecorationLine: 'line-through',
-    marginLeft: 4,
+    fontSize: 10, color: '#D1D5DB',
+    textDecorationLine: 'line-through', marginLeft: 4,
   },
   addBtn: {
-    backgroundColor: '#1B4332',
-    borderRadius: 10,
-    paddingVertical: 8,
-    alignItems: 'center',
-    marginTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'center',
+    backgroundColor: '#1B4332', borderRadius: 10, paddingVertical: 8,
+    alignItems: 'center', marginTop: 8,
+    flexDirection: 'row', justifyContent: 'center',
   },
   addBtnDisabled: { backgroundColor: '#E5E7EB' },
   addBtnText: { color: '#fff', fontSize: 11, fontWeight: '700' },
