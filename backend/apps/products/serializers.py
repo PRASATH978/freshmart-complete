@@ -53,3 +53,20 @@ class ProductSerializer(serializers.ModelSerializer):
         if offer:
             return {'title': offer.title, 'discount_percent': offer.discount_percent}
         return None
+
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.IntegerField(write_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'product', 'product_id', 'created_at']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        product_id = validated_data['product_id']
+        wishlist, _ = Wishlist.objects.get_or_create(
+            user=user, product_id=product_id
+        )
+        return wishlist

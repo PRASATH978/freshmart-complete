@@ -1,5 +1,11 @@
 from django.urls import path
 from . import views
+from .views import (
+    CategoryListCreateView, CategoryDetailView,
+    ProductListCreateView, ProductDetailView,
+    OfferListCreateView, OfferDetailView,
+    ReviewListCreateView, AdminProductStatsView,
+    WishlistView,  )
 
 
 urlpatterns = [
@@ -11,5 +17,5 @@ urlpatterns = [
     path('offers/', views.OfferListCreateView.as_view()),
     path('offers/<int:pk>/', views.OfferDetailView.as_view()),
     path('admin/stats/', views.AdminProductStatsView.as_view()),
-  
+    path('wishlist/', WishlistView.as_view(), name='wishlist'),
 ]

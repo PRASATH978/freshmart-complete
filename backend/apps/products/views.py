@@ -99,3 +99,34 @@ class AdminProductStatsView(APIView):
         })
 
 
+from .models import Wishlist
+from .serializers import WishlistSerializer
+
+class WishlistView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        items = Wishlist.objects.filter(user=request.user).select_related('product')
+        serializer = WishlistSerializer(items, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    def post(self, request):
+        product_id = request.data.get('product_id')
+        if not product_id:
+            return Response({'error': 'product_id required'}, status=400)
+        wishlist, created = Wishlist.objects.get_or_create(
+            user=request.user, product_id=product_id
+        )
+        return Response({
+            'id': wishlist.id,
+            'product_id': product_id,
+            'wishlisted': True,
+            'created': created
+        })
+
+    def delete(self, request):
+        product_id = request.data.get('product_id')
+        deleted = Wishlist.objects.filter(
+            user=request.user, product_id=product_id
+        ).delete()
+        return Response({'wishlisted': False, 'deleted': deleted[0] > 0})
