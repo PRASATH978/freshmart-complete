@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
+from .views import SavePushTokenView
 
 urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='register'),
@@ -9,4 +10,5 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('users/', views.UserListView.as_view(), name='user-list'),
     path('addresses/', views.AddressListCreateView.as_view(), name='address-list'),
+    path('push-token/', SavePushTokenView.as_view()),
 ]

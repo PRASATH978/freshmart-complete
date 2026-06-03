@@ -209,3 +209,21 @@ class AdminPaymentsView(APIView):
         serializer = AdminPaymentSerializer(payments, many=True)
 
         return Response(serializer.data)
+    
+
+
+from utils.notifications import send_push_notification
+
+# Inside your order update view, after saving:
+STATUS_MESSAGES = {
+    'confirmed': ('Order Confirmed! ✅', 'Your order has been confirmed and is being prepared.'),
+    'preparing': ('Being Prepared 👨‍🍳', 'Your fresh vegetables are being packed.'),
+    'out_for_delivery': ('Out for Delivery 🚴', 'Your order is on the way!'),
+    'delivered': ('Delivered! 🎉', 'Your order has been delivered. Enjoy your fresh veggies!'),
+    'cancelled': ('Order Cancelled ❌', 'Your order has been cancelled.'),
+}
+
+status = request.data.get('status')
+if status in STATUS_MESSAGES:
+    title, body = STATUS_MESSAGES[status]
+    send_push_notification(order.user, title, body, {'order_id': order.id})

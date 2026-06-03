@@ -74,3 +74,16 @@ class AddressListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+
+from .models import PushToken
+
+class SavePushTokenView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        token = request.data.get('token')
+        if not token:
+            return Response({'error': 'token required'}, status=400)
+        PushToken.objects.get_or_create(user=request.user, token=token)
+        return Response({'status': 'saved'})

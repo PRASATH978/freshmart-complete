@@ -34,7 +34,7 @@ export async function registerForPushNotifications() {
 
   // Get Expo push token
   const token = (await Notifications.getExpoPushTokenAsync({
-    projectId: 'your-expo-project-id', // ← get from app.json or expo.dev
+    projectId: 'fa8d695e-b526-45d9-947d-47247d23d035', // ← get from app.json or expo.dev
   })).data;
 
   // Save token to backend
